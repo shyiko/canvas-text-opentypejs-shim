@@ -1,0 +1,25 @@
+{
+  "name": "canvas-text-opentypejs-shim",
+  "version": "0.1.0",
+  "description": "Consistent text rendering for <canvas>",
+  "author": "Stanley Shyiko <stanley.shyiko@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shyiko/canvas-text-opentypejs-shim"
+  },
+  "main": "canvas-text-opentypejs-shim.js",
+  "browser": "canvas-text-opentypejs-shim.min.js",
+  "scripts": {
+    "start-dev": "browser-sync start --server",
+    "build": "uglifyjs --compress --mangle -- canvas-text-opentypejs-shim.js > canvas-text-opentypejs-shim.min.js",
+    "test": "standard5 --fix -v canvas-text-opentypejs-shim.js",
+    "preversion": "npm test",
+    "postversion": "git push && git push --tags"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.18.5",
+    "standard5": "^1.1.1",
+    "uglify-js": "^2.7.5"
+  }
+}

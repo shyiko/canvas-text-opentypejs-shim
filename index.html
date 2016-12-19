@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <!-- for "native" rendering -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/0.6.6/opentype.min.js"></script>
+<script src="canvas-text-opentypejs-shim.js"></script>
+<script>window['canvas-text-opentypejs-shim'] || document.write('<script src="https://unpkg.com/canvas-text-opentypejs-shim@0.1.0">\x3C/script>')</script>
+<style>
+  body { color: #616161; text-align: center; }
+  canvas { border: 1px dashed black; font-size: 14px; margin: 6px 0; }
+  header {
+    text-align: center;
+    background: #CFD8DC;
+    padding: 6px;
+    margin-bottom: 12px;
+  }
+  p {
+    margin: 0;
+  }
+</style>
+<header>
+  left - native | center - rendered with shim active | right - native overlayed with shim
+</header>
+<script>
+  window.onload = function () {
+    Promise.all([
+      {
+        fontFamily: 'Roboto',
+        url: 'https://fonts.gstatic.com/s/' +
+        'roboto/v15/QHD8zigcbDB8aPfIoaupKOvvDin1pK8aKteLpeZ5c0A.ttf'
+      }
+    ].map(function (f) {
+      return new Promise(function (resolve, reject) {
+        opentype.load(f.url, function (err, font) {
+          if (err) {
+              reject(err)
+              return
+          }
+          f.fontObject = font
+          resolve(f)
+        })
+      })
+    })).then(function (ff) {
+      const fontCache = ff.reduce(function (r, f) {
+          r[f.fontFamily] = f.fontObject
+          return r
+        }, {})
+
+      const canvasTextOpenTypeJsShim = window['canvas-text-opentypejs-shim']
+
+      function drawCross(ctx, x, y) {
+        var width = 5
+        ctx.beginPath()
+        ctx.moveTo(x - width, y)
+        ctx.lineTo(x + width, y)
+        ctx.moveTo(x, y - width)
+        ctx.lineTo(x, y + width)
+        ctx.stroke()
+      }
+
+      var defaultTextAlign = 'start'
+      var textAlign = ['start', 'end', 'left', 'right', 'center']
+      var defaultTextBaseline = 'alphabetic'
+      var textBaseline = ['top', 'hanging', 'middle', 'alphabetic', 'ideographic', 'bottom']
+
+      var ee = []
+      textAlign.forEach(function (align) {
+        textBaseline.forEach(function (baseline) {
+          ee.push({
+            textAlign: align,
+            textBaseline: baseline
+          })
+        })
+      })
+
+      ee.forEach(function (e) {
+        var fontSize = 26
+
+        var div = document.createElement('div')
+        var canvas = document.createElement('canvas')
+        canvas.width = 720
+        canvas.height = fontSize * 3
+        var p = document.createElement('p')
+        var title = document.createTextNode(JSON.stringify({
+          textAlign: e.textAlign === defaultTextAlign
+            ? undefined : e.textAlign,
+          textBaseline: e.textBaseline === defaultTextBaseline
+            ? undefined : e.textBaseline
+        }))
+        p.appendChild(title)
+        div.appendChild(p)
+        div.appendChild(canvas)
+        document.body.appendChild(div)
+
+        var ctx = canvas.getContext('2d')
+        var hdl = canvasTextOpenTypeJsShim(ctx, {
+          resolveFont: function (o) { return fontCache[o.fontFamily] }
+        })
+        ctx.font = '26px Roboto'
+
+        Object.keys(e).forEach(function (k) { ctx[k] = e[k] })
+
+        var x
+        // presence of descenders yields different Y depending on textBaseline
+        ;['Go', 'Vegan'].forEach(function (text, j) {
+          var shiftX = canvas.width / 5 + j * fontSize * 3
+          var shiftY = fontSize * 2
+
+          x = shiftX - fontSize * 2
+          drawCross(ctx, x, shiftY)
+          ctx.fillStyle = '#d32f2f'
+          hdl.enable(false)
+          ctx.fillText(text, x, shiftY)
+
+          x = shiftX + (canvas.width / 5)
+          drawCross(ctx, x, shiftY)
+          ctx.fillStyle = '#1976D2'
+          hdl.enable(true)
+          ctx.fillText(text, x, shiftY)
+
+          x = shiftX + (canvas.width / 5) * 2 + fontSize * 2
+          drawCross(ctx, x, shiftY)
+          ctx.fillStyle = '#d32f2f'
+          hdl.enable(false)
+          ctx.fillText(text, x, shiftY)
+          ctx.fillStyle = '#1976D2'
+          hdl.enable(true)
+          ctx.fillText(text, x, shiftY)
+        })
+
+      })
+
+  })
+  }
+</script>
+</body>
+</html>
