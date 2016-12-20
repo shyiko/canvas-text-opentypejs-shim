@@ -14,7 +14,7 @@
     "start-dev": "browser-sync start --server",
     "build": "uglifyjs --compress --mangle -- canvas-text-opentypejs-shim.js > canvas-text-opentypejs-shim.min.js",
     "test": "standard5 --fix -v canvas-text-opentypejs-shim.js",
-    "preversion": "npm test",
+    "prepublish": "npm test && npm run build",
     "postversion": "git push && git push --tags"
   },
   "devDependencies": {
