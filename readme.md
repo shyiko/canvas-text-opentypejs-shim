@@ -31,6 +31,14 @@ ctx.font = '26px Roboto'
 ctx.fillText(text, 50, 50)
 ```
 
+[Live Demo @ JS Bin](http://jsbin.com/gist/caa8be675e6dafee47c76a004202258d?html,output).  
+
+[Live Demo (using kangax/fabric.js) @ JS Bin](http://jsbin.com/gist/82369ed3ec7ab0edfb8006da69b3b93a?html,output).
+
+[Live Demo (using automattic/node-canvas) @ RunKit](http://runkit.com/shyiko/canvas-text-opentypejs-shim). Node.js
+
+[Demo (using kangax/fabric.js)](demo/demo-runkit-fabric.js). Node.js
+
 ## License
 
 [MIT](https://opensource.org/licenses/mit-license.php)

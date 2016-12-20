@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>canvas-text-opentypejs-shim</title>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/0.6.6/opentype.min.js"></script>
+<script src="../canvas-text-opentypejs-shim.js"></script>
+<script>window['canvas-text-opentypejs-shim'] || document.write('<script src="https://rawgit.com/shyiko/canvas-text-opentypejs-shim/master/canvas-text-opentypejs-shim.js">\x3C/script>')</script>
+<script>
+opentype.load('https://fonts.gstatic.com/s/roboto' +
+    '/v15/QHD8zigcbDB8aPfIoaupKOvvDin1pK8aKteLpeZ5c0A.ttf',
+  function (err, font) {
+    if (err) {
+      document.body.appendChild(document.createTextNode(err.stack))
+      return
+    }
+
+    var canvas = document.createElement('canvas')
+    canvas.width = canvas.height = 200
+    document.body.appendChild(canvas)
+
+    var applyCanvasTextOpenTypeJsShim = window['canvas-text-opentypejs-shim']
+    var ctx = canvas.getContext('2d')
+    applyCanvasTextOpenTypeJsShim(ctx, {
+      resolveFont: function (o) {
+        if (o.fontFamily === 'Roboto') {
+          return font
+        }
+      }
+    })
+
+    ctx.font = '26px Roboto'
+    ctx.fillText('Hello World', 0, 26)
+  })
+</script>
+</body>
+</html>

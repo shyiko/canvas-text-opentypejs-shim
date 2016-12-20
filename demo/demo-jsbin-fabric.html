@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>canvas-text-opentypejs-shim :: fabric</title>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.6.6/fabric.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/0.6.6/opentype.min.js"></script>
+<script src="../canvas-text-opentypejs-shim.js"></script>
+<script>window['canvas-text-opentypejs-shim'] || document.write('<script src="https://rawgit.com/shyiko/canvas-text-opentypejs-shim/master/canvas-text-opentypejs-shim.js">\x3C/script>')</script>
+<script>
+opentype.load('https://fonts.gstatic.com/s/roboto' +
+    '/v15/QHD8zigcbDB8aPfIoaupKOvvDin1pK8aKteLpeZ5c0A.ttf',
+  function (err, font) {
+    if (err) {
+      document.body.appendChild(document.createTextNode(err.stack))
+      return
+    }
+
+    fabric.devicePixelRatio = 1 // this is here for test purposes only
+
+    var canvas = document.createElement('canvas')
+    canvas.width = canvas.height = 200
+    document.body.appendChild(canvas)
+
+    var applyCanvasTextOpenTypeJsShim = window['canvas-text-opentypejs-shim']
+    var ctx = new fabric.Canvas(canvas)
+    applyCanvasTextOpenTypeJsShim(ctx.contextContainer, {
+      resolveFont: function (o) {
+        if (o.fontFamily === 'Roboto') {
+          return font
+        }
+      }
+    })
+
+    ctx.add(new fabric.Text('Hello World', {
+      left: 0, top: 0, fontFamily: 'Roboto', fontSize: 26
+    }))
+  })
+</script>
+</body>
+</html>
