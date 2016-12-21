@@ -5,6 +5,17 @@
     root['canvas-text-opentypejs-shim'] = factory()
   }
 }(this, function () {
+  // adopted from https://github.com/kangax/fabric.js/blob/v1.6.6/src/parser.js#L703
+  var num = '(?:[-+]?(?:\\d+|\\d*\\.\\d+)(?:e[-+]?\\d+)?)'
+  var fontCSS = new RegExp(
+    '(normal|italic|oblique)?\\s*' +
+    '(normal|small-caps)?\\s*' +
+    '(normal|bold|bolder|lighter|100|200|300|400|500|600|700|800|900)?\\s*' +
+    '(normal|ultra-condensed|extra-condensed|condensed|semi-condensed|' +
+      'semi-expanded|expanded|extra-expanded|ultra-expanded)?\\s*' +
+    '(' + num + '(?:px|cm|mm|em|pt|pc|in)*)(?:\\/(normal|' + num + '))?\\s+' +
+    '(.*)')
+
   /**
    * @see https://developer.mozilla.org/en-US/docs/Web/CSS/font
    *
@@ -24,41 +35,15 @@
    * }}
    */
   function parseCSSFont (font) {
-    var fontFamilyFallbackIndex = font.indexOf(',')
-    var fontFamilyFallback = ~fontFamilyFallbackIndex
-      ? font.slice(fontFamilyFallbackIndex) : ''
-    var fontWithoutFontFamilyFallback = ~fontFamilyFallbackIndex
-      ? font.slice(0, fontFamilyFallbackIndex) : font
-    var split = fontWithoutFontFamilyFallback.split(' ')
-      .reduce(function (arr, v) {
-        var part = v.trim()
-        if (part) {
-          arr.push(part)
-          if (part.charAt(part.length - 1) === '"') {
-            for (var i = arr.length - 1; i > -1; i--) {
-              if (!arr[i].indexOf('"')) {
-                return arr.slice(0, i).concat(arr.slice(i).join(' '))
-              }
-            }
-          }
-        }
-        return arr
-      }, [])
-    var fontTokens = split
-      .slice(0, -2).concat('normal', 'normal', 'normal', 'normal').slice(0, 4)
-      .concat(split.slice(-2))
-    var fontSize = fontTokens[4]
-    var lineHeightIndex = fontSize.indexOf('/')
+    var m = font.match(fontCSS)
     return {
-      fontStyle: fontTokens[0],
-      fontVariant: fontTokens[1],
-      fontWeight: fontTokens[2],
-      fontStretch: fontTokens[3],
-      fontSize: ~lineHeightIndex
-        ? fontSize.slice(0, lineHeightIndex) : fontSize,
-      lineHeight: ~lineHeightIndex
-        ? fontSize.slice(lineHeightIndex + 1) : 'normal',
-      fontFamily: fontTokens[5] + fontFamilyFallback
+      fontStyle: m[1] || 'normal',
+      fontVariant: m[2] || 'normal',
+      fontWeight: m[3] || 'normal',
+      fontStretch: m[4] || 'normal',
+      fontSize: m[5],
+      lineHeight: m[6] || 'normal',
+      fontFamily: m[7]
     }
   }
 
