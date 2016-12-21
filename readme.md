@@ -1,7 +1,6 @@
 # canvas-text-opentypejs-shim
 
-Consistent text rendering for `<canvas>` backed by [opentype.js](https://github.com/nodebox/opentype.js).  
-Works both on the client- and server-side ([automattic/node-canvas](https://github.com/Automattic/node-canvas)) (and yes, it can be used with [kangax/fabric.js](https://github.com/kangax/fabric.js)).
+Text rendering shim for `<canvas>` backed by [opentype.js](https://github.com/nodebox/opentype.js). It allows you to get consistent results regardless of the OS, browser and the environment (Node.js). Works great with [kangax/fabric.js](https://github.com/kangax/fabric.js).
 
 ## Installation
 
