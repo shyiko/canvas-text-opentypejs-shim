@@ -12,31 +12,46 @@
 <script src="../canvas-text-opentypejs-shim.js"></script>
 <script>window['canvas-text-opentypejs-shim'] || document.write('<script src="https://rawgit.com/shyiko/canvas-text-opentypejs-shim/master/canvas-text-opentypejs-shim.js">\x3C/script>')</script>
 <script>
-opentype.load('https://fonts.gstatic.com/s/roboto' +
-    '/v15/QHD8zigcbDB8aPfIoaupKOvvDin1pK8aKteLpeZ5c0A.ttf',
-  function (err, font) {
-    if (err) {
-      document.body.appendChild(document.createTextNode(err.stack))
-      return
-    }
+(function () {
 
-    var canvas = document.createElement('canvas')
-    canvas.width = canvas.height = 200
-    document.body.appendChild(canvas)
+  var useOpenTypeJsForText = window['canvas-text-opentypejs-shim']
 
-    var applyCanvasTextOpenTypeJsShim = window['canvas-text-opentypejs-shim']
-    var ctx = canvas.getContext('2d')
-    applyCanvasTextOpenTypeJsShim(ctx, {
-      resolveFont: function (o) {
-        if (o.fontFamily === 'Roboto') {
-          return font
-        }
+  /**
+   * @param fontFamily e.g. "'Open Sans', sans-serif"
+   * @return e.g. ["Open Sans", "sans-serif"]
+   */
+  function splitFontFamily (fontFamily) {
+    return fontFamily.split(',')
+      .map((f) => f.trim().replace(/^['"]/, '').replace(/['"]$/, ''))
+      .filter(Boolean)
+  }
+
+  opentype.load(
+    'https://rawgit.com/google/fonts/master/apache/opensans/OpenSans-Regular.ttf',
+    function (err, font) {
+      if (err) {
+        document.body.appendChild(document.createTextNode(err.stack))
+        return
       }
+
+      var canvas = document.createElement('canvas')
+      canvas.width = canvas.height = 200
+      document.body.appendChild(canvas)
+
+      var ctx = canvas.getContext('2d')
+      useOpenTypeJsForText(ctx, {
+        resolveFont: function (o) {
+          if (splitFontFamily(o.fontFamily)[0] === 'Open Sans') {
+            return font
+          }
+        }
+      })
+
+      ctx.font = '26px "Open Sans"'
+      ctx.fillText('Hello World', 0, 26)
     })
 
-    ctx.font = '26px Roboto'
-    ctx.fillText('Hello World', 0, 26)
-  })
+})()
 </script>
 </body>
 </html>

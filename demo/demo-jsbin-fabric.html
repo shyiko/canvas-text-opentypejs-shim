@@ -13,34 +13,67 @@
 <script src="../canvas-text-opentypejs-shim.js"></script>
 <script>window['canvas-text-opentypejs-shim'] || document.write('<script src="https://rawgit.com/shyiko/canvas-text-opentypejs-shim/master/canvas-text-opentypejs-shim.js">\x3C/script>')</script>
 <script>
-opentype.load('https://fonts.gstatic.com/s/roboto' +
-    '/v15/QHD8zigcbDB8aPfIoaupKOvvDin1pK8aKteLpeZ5c0A.ttf',
-  function (err, font) {
-    if (err) {
-      document.body.appendChild(document.createTextNode(err.stack))
-      return
+(function () {
+
+  var useOpenTypeJsForText = window['canvas-text-opentypejs-shim']
+
+  // this is here for test purposes only
+  fabric.devicePixelRatio = 1
+  // this way fabric tends to yield more consistent results when compared to
+  // CanvasRenderingContext2D.drawText
+  fabric.Text.prototype._fontSizeMult = 1.25
+
+  /**
+   * @param fontFamily e.g. "'Open Sans', sans-serif"
+   * @return e.g. ["Open Sans", "sans-serif"]
+   */
+  function splitFontFamily (fontFamily) {
+    return fontFamily.split(',')
+      .map((f) => f.trim().replace(/^['"]/, '').replace(/['"]$/, ''))
+      .filter(Boolean)
+  }
+
+  // making sure whatever context is used to measure/draw text it has shim active
+  // (given openTypeJsShimConfig was provided)
+  fabric.Text.prototype._setTextStyles = (function (original) {
+    return function (ctx) {
+      var cfg = this.openTypeJsShimConfig
+      if (cfg && !ctx.measureText.__openTypeJsShimConfig) {
+        useOpenTypeJsForText(ctx, cfg)
+        ctx.measureText.__openTypeJsShimConfig = cfg
+      }
+      return original.call(this, ctx)
     }
+  })(fabric.Text.prototype._setTextStyles)
 
-    fabric.devicePixelRatio = 1 // this is here for test purposes only
+  opentype.load(
+    'https://rawgit.com/google/fonts/master/apache/opensans/OpenSans-Regular.ttf',
+    function (err, font) {
+      if (err) {
+        document.body.appendChild(document.createTextNode(err.stack))
+        return
+      }
 
-    var canvas = document.createElement('canvas')
-    canvas.width = canvas.height = 200
-    document.body.appendChild(canvas)
+      var canvas = document.createElement('canvas')
+      canvas.width = canvas.height = 200
+      document.body.appendChild(canvas)
 
-    var applyCanvasTextOpenTypeJsShim = window['canvas-text-opentypejs-shim']
-    var ctx = new fabric.Canvas(canvas)
-    applyCanvasTextOpenTypeJsShim(ctx.contextContainer, {
-      resolveFont: function (o) {
-        if (o.fontFamily === 'Roboto') {
-          return font
+      var ctx = new fabric.Canvas(canvas)
+      var shimConfig = {
+        resolveFont: function (o) {
+          if (splitFontFamily(o.fontFamily)[0] === 'Open Sans') {
+            return font
+          }
         }
       }
+
+      ctx.add(new fabric.Text('Hello World', {
+        left: 0, top: 0, fontFamily: 'Open Sans', fontSize: 26,
+        openTypeJsShimConfig: shimConfig
+      }))
     })
 
-    ctx.add(new fabric.Text('Hello World', {
-      left: 0, top: 0, fontFamily: 'Roboto', fontSize: 26
-    }))
-  })
+})()
 </script>
 </body>
 </html>

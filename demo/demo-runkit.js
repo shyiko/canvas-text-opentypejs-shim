@@ -8,35 +8,45 @@ const NodeCanvas = require('canvas')
 const opentype = require('opentype.js')
 const fetch = require('node-fetch')
 const fs = require('fs')
-const applyCanvasTextOpenTypeJsShim =
+const useOpenTypeJsForText =
   (() => { try { return require('../canvas-text-opentypejs-shim') } catch (e) {} })() ||
   require('canvas-text-opentypejs-shim')
 
-fetch('https://fonts.gstatic.com/s/roboto' +
-  '/v15/QHD8zigcbDB8aPfIoaupKOvvDin1pK8aKteLpeZ5c0A.ttf')
+/**
+ * @param fontFamily e.g. "'Open Sans', sans-serif"
+ * @return e.g. ["Open Sans", "sans-serif"]
+ */
+function splitFontFamily (fontFamily) {
+  return fontFamily.split(',')
+    .map((f) => f.trim().replace(/^['"]/, '').replace(/['"]$/, ''))
+    .filter(Boolean)
+}
+
+fetch('https://rawgit.com/google/fonts/master/apache/' +
+    'opensans/OpenSans-Regular.ttf')
   .then((res) => new Promise((resolve, reject) => {
     res.body
       .on('error', reject)
-      .pipe(fs.createWriteStream('Roboto.ttf'))
+      .pipe(fs.createWriteStream('OpenSans-Regular.ttf'))
       .on('error', reject)
       .on('finish', resolve)
   }))
   .then(() => {
-    const font = opentype.loadSync('Roboto.ttf')
+    const font = opentype.loadSync('OpenSans-Regular.ttf')
 
     const canvas = new NodeCanvas(200, 200)
     const ctx = canvas.getContext('2d')
-    applyCanvasTextOpenTypeJsShim(ctx, {
+    useOpenTypeJsForText(ctx, {
       resolveFont: function (o) {
-        if (o.fontFamily === 'Roboto') {
+        if (splitFontFamily(o.fontFamily)[0] === 'Open Sans') {
           return font
         }
       }
     })
 
-    ctx.font = '26px Roboto'
+    ctx.font = '26px "Open Sans"'
     ctx.fillText('Hello World', 0, 26)
 
-    console.log(canvas.toBuffer())
+    console.log(`<img src="data:image/png;base64,${canvas.toBuffer().toString('base64')}">`)
   })
 
