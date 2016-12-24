@@ -19,12 +19,12 @@ or through unpkg:
 ## Usage
 
 ```javascript
-const applyCanvasTextOpenTypeJsShim = require('canvas-text-opentypejs-shim')
+const useOpenTypeJsForText = require('canvas-text-opentypejs-shim')
 
 const canvas ...
 const ctx = canvas.getContext('2d')
 
-applyCanvasTextOpenTypeJsShim(ctx, {resolveFont: (o) => opentypeFontInstance})
+useOpenTypeJsForText(ctx, {resolveFont: (o) => opentypeFontInstance})
 
 ctx.font = '26px Roboto'
 ctx.fillText(text, 50, 50)
