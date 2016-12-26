@@ -5,17 +5,6 @@
     root['canvas-text-opentypejs-shim'] = factory()
   }
 }(this, function () {
-  // adopted from https://github.com/kangax/fabric.js/blob/v1.6.6/src/parser.js#L703
-  var num = '(?:[-+]?(?:\\d+|\\d*\\.\\d+)(?:e[-+]?\\d+)?)'
-  var fontCSS = new RegExp(
-    '(normal|italic|oblique)?\\s*' +
-    '(normal|small-caps)?\\s*' +
-    '(normal|bold|bolder|lighter|100|200|300|400|500|600|700|800|900)?\\s*' +
-    '(normal|ultra-condensed|extra-condensed|condensed|semi-condensed|' +
-      'semi-expanded|expanded|extra-expanded|ultra-expanded)?\\s*' +
-    '(' + num + '(?:px|cm|mm|em|pt|pc|in)*)(?:\\/(normal|' + num + '))?\\s+' +
-    '(.*)')
-
   /**
    * @see https://developer.mozilla.org/en-US/docs/Web/CSS/font
    *
@@ -35,16 +24,66 @@
    * }}
    */
   function parseCSSFont (font) {
-    var m = font.match(fontCSS)
-    return {
-      fontStyle: m[1] || 'normal',
-      fontVariant: m[2] || 'normal',
-      fontWeight: m[3] || 'normal',
-      fontStretch: m[4] || 'normal',
-      fontSize: m[5],
-      lineHeight: m[6] || 'normal',
-      fontFamily: m[7]
+    var fontFamilyIndex = [
+      font.lastIndexOf(' ', font.indexOf(',')) + 1 || -1,
+      font.indexOf('"'),
+      font.indexOf('\'')
+    ].reduce(
+      function (r, v) { return ~v && v < r ? v : r },
+      font.lastIndexOf(' ')
+    )
+    var split = font.slice(0, fontFamilyIndex).trim().split(/\s+/)
+    var fontSize = split[split.length - 1]
+    var lineHeightIndex = fontSize.indexOf('/')
+    var o = {
+      fontStyle: 'normal',
+      fontVariant: 'normal',
+      fontWeight: 'normal',
+      fontStretch: 'normal',
+      fontSize: ~lineHeightIndex
+        ? fontSize.slice(0, lineHeightIndex) : fontSize,
+      lineHeight: ~lineHeightIndex
+        ? fontSize.slice(lineHeightIndex + 1) : 'normal',
+      fontFamily: font.slice(fontFamilyIndex)
     }
+    split.slice(0, -1).forEach(function (v) {
+      switch (v) {
+        case 'normal':
+          break
+        case 'italic':
+        case 'oblique':
+          o.fontStyle = v
+          break
+        case 'small-caps':
+          o.fontVariant = v
+          break
+        case 'bold':
+        case 'bolder':
+        case 'lighter':
+        case '100':
+        case '200':
+        case '300':
+        case '400':
+        case '500':
+        case '600':
+        case '700':
+        case '800':
+        case '900':
+          o.fontWeight = v
+          break
+        case 'ultra-condensed':
+        case 'extra-condensed':
+        case 'condensed':
+        case 'semi-condensed':
+        case 'semi-expanded':
+        case 'expanded':
+        case 'extra-expanded':
+        case 'ultra-expanded':
+          o.fontStretch = v
+          break
+      }
+    })
+    return o
   }
 
   /**
