@@ -1,6 +1,6 @@
 {
   "name": "canvas-text-opentypejs-shim",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Consistent text rendering for <canvas>",
   "author": "Stanley Shyiko <stanley.shyiko@gmail.com>",
   "license": "MIT",
