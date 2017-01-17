@@ -30,7 +30,7 @@
       font.indexOf('\'')
     ].reduce(
       function (r, v) { return ~v && v < r ? v : r },
-      font.lastIndexOf(' ')
+      font.lastIndexOf(' ') + 1
     )
     var split = font.slice(0, fontFamilyIndex).trim().split(/\s+/)
     var fontSize = split[split.length - 1]
